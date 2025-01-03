@@ -16,13 +16,12 @@ const whitelist = [
     "http://localhost:5173",
     "http://localhost:3000",
     "http://192.168.1.47:3000",
-    "https://chat-app-w4lf.onrender.com/",
+    "https://chat-app-w4lf.onrender.com", // Add your production frontend URL here
 ];
 
-// CORS options
+// CORS options for Express
 const corsOptions = {
     origin: function (origin: string | undefined, callback: any) {
-        console.log("origin", origin); // For debugging purposes
         if (!origin || whitelist.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
@@ -31,13 +30,18 @@ const corsOptions = {
     },
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
 };
 
 // Create HTTP server and integrate Socket.IO
 const server = createServer(app);
 const io = new Server(server, {
-    cors: corsOptions, // Using the same CORS options for Socket.IO
+    cors: {
+        origin: whitelist,
+        methods: ["GET", "POST"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+        credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+    },
 });
 
 // Middleware
@@ -60,19 +64,13 @@ io.on("connection", (socket) => {
     // Listen for sendMessage event
     socket.on("sendMessage", (message) => {
         console.log("New message received:", message);
-
-        // Broadcast the message to the receiver
         socket.broadcast.emit("receiveMessage", message);
     });
 
-    // Listen for a message deletion event from a client
+    // Listen for message deletion event
     socket.on("messageDeleted", ({ messageId, senderId, receiverId }) => {
-        console.log(
-            `Message with ID ${messageId} deleted by ${senderId} or ${receiverId}`
-        );
-
-        // Broadcast the deletion event to all connected clients, or a specific room/user
-        io.emit("messageDeleted", { messageId, senderId, receiverId }); // Adjust this to target specific users/rooms if needed
+        console.log(`Message with ID ${messageId} deleted`);
+        io.emit("messageDeleted", { messageId, senderId, receiverId });
     });
 
     socket.on("disconnect", () => {
