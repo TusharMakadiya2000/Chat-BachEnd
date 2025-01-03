@@ -19,8 +19,10 @@ const io = new Server(server, {
             "http://localhost:5173",
             "http://localhost:3000",
             "http://192.168.1.47:3000",
+            "https://chat-app-w4lf.onrender.com/",
         ],
         methods: ["GET", "POST", "PUT", "DELETE"],
+        allowedHeaders: ["Content-Type", "Authorization"],
     },
 });
 
