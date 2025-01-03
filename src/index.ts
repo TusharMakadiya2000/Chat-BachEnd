@@ -15,6 +15,8 @@ const port = process.env.PORT || 5000;
 const whitelist = [
     "http://localhost:5173",
     "http://localhost:3000",
+    "http://localhost:3001",
+    "http://192.168.1.10:3001/",
     "http://192.168.1.47:3000",
     "https://chat-app-w4lf.onrender.com", // Add your production frontend URL here
 ];
